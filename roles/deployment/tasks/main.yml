@@ -1,0 +1,38 @@
+---
+- name: Deploy IoT Watchdog agent
+  hosts: all
+  become: true
+
+  tasks:
+  - name: Create a directory named /usr/local/iot-watchdog
+    file:
+      path: /usr/local/iot-watchdog
+      state: directory
+      owner: root
+      group: root
+      mode: 0744
+      recurse: yes
+
+  - name: Copy watchdog agent code to target folder
+    copy:
+      src: "{{ source_code }}"
+      dest: /usr/local/iot-watchdog
+      owner: root
+      group: root
+      remote_src: False
+      mode: 0744
+
+  - name: Copy watchdog service definition
+    copy:
+      src: "{{ service_def }}"
+      dest: /etc/systemd/system
+      owner: root
+      group: root
+      remote_src: False
+      mode: 0744
+
+  - name: Enable iot-watchdog service
+    systemd:
+      name: iot-watchdog.service
+      state: started
+      enabled: True

@@ -1,0 +1,7 @@
+[Unit]
+Description = IoT Watchdog agent
+After = network.target
+[Service]
+ExecStart = /usr/local/iot-watchdog/iot-watchdog-application
+[Install]
+WantedBy = multi-user.target
