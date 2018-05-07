@@ -23,6 +23,14 @@
       remote_src: False
       mode: 0744
 
+  - name: Insert the IoT Watchdog agent UUID and force the registration
+    blockinfile:
+      path: /usr/local/iot-watchdog/config.cfg
+      block: |
+        iot_watchdog_agent_uuid={{ iot_watchdog_agent_uuid }}
+        iot_watchdog_agent_need_registration={{ iot_watchdog_agent_need_registration }}
+      insertafter: EOF
+
   - name: Copy watchdog service definition
     copy:
       src: "{{ service_def }}"

@@ -2,3 +2,5 @@
 *.retry
 
 iot-device/
+*idea*
+*tmp*
