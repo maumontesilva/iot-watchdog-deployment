@@ -1,6 +1,7 @@
 *.swp
 *.retry
 
+*.log
 iot-device/
 *idea*
 *tmp*

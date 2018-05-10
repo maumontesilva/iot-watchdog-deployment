@@ -4,10 +4,14 @@ import time
 import uuid
 import os
 import logging
+import json
+import couchdb
 
 logging.basicConfig(filename='iot-watchdog-deployment.log',level=logging.DEBUG)
 
 app = Flask(__name__)
+
+couch = couchdb.Server('http://192.168.56.101:5984/')
 
 @app.route('/iot-watchdog/api/v1.0/deploy/agent', methods=['POST'])
 def deploy_iot_watchdog_agent():
@@ -33,6 +37,7 @@ def deploy_iot_watchdog_agent():
     try:
         install_iot_watchdog(host, username, password, UUID)
         deviceFileFolder = collect_device_facts(host, username, password, UUID)
+        persistDeviceProfile(deviceFileFolder, host)
     except Exception as error:
         logging.error(error)
         abort(500)
@@ -100,6 +105,13 @@ def run_cmd(command):
 
     logging.info("command returned code " + str(p.returncode))
     return p.returncode
+
+def persistDeviceProfile(folderPath, host):
+    with open(folderPath + '/' + host) as f:
+        data = json.load(f)
+
+    db = couch['deployment-db']
+    db.save(data)
 
 if __name__ == '__main__':
     logging.info("Starting IoT Watchdog deployment service ...")
