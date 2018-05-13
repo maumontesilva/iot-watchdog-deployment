@@ -29,6 +29,7 @@
       block: |
         iot_watchdog_agent_uuid={{ iot_watchdog_agent_uuid }}
         iot_watchdog_agent_need_registration={{ iot_watchdog_agent_need_registration }}
+        mqtt_broker_certificate={{ iot_watchdog_mqtt_broker_certificate }}
       insertafter: EOF
 
   - name: Copy watchdog service definition
@@ -39,6 +40,13 @@
       group: root
       remote_src: False
       mode: 0744
+
+  - name: Insert MQTT broker hostname/ip into /etc/hosts
+    blockinfile:
+      path: /etc/hosts
+      block: |
+        {{ iot_watchdog_mqtt_broker_ip }} {{ iot_watchdog_mqtt_broker_hostname }}
+      insertafter: EOF
 
   - name: Starting iot-watchdog service
     systemd:

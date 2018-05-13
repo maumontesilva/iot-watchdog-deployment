@@ -1,0 +1,10 @@
+db:
+  host: dissertation-server
+  port: 5984
+  protocol: http
+broker:
+  hostname: dissertation-server
+  ip: 192.168.1.20
+  port: 8883
+  heartbeat: 5
+  certificate: /usr/local/iot-watchdog/cert/server.crt

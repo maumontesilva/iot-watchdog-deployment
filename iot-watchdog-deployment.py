@@ -6,12 +6,30 @@ import os
 import logging
 import json
 import couchdb
-
-logging.basicConfig(filename='iot-watchdog-deployment.log',level=logging.DEBUG)
+import yaml
 
 app = Flask(__name__)
 
-couch = couchdb.Server('http://dissertation-server:5984/')
+logging.basicConfig(filename='iot-watchdog-deployment.log',level=logging.DEBUG)
+
+def readConfiguration():
+    with open("iot-watchdog-deployment-cfg.yml", 'r') as ymlfile:
+        return yaml.load(ymlfile)
+
+def saveIotWatchdogConfigFile(broker):
+    with open("iot-device/agent/config.cfg", "w") as iotWatchdogCfg:
+        iotWatchdogCfg.write("#FILE MANAGED by IoT WATCHDOG DEPLOYMENT APP\n")
+        iotWatchdogCfg.write("heartbeat_period_in_minutes=%s\n" % str(broker['heartbeat']))
+        iotWatchdogCfg.write("mqtt_broker_host=%s\n" % str(broker['hostname']))
+        iotWatchdogCfg.write("mqtt_broker_port=%s\n" % str(broker['port']))
+
+cfg = readConfiguration()
+dbCfg = cfg['db']
+dbURL = dbCfg['protocol'] + '://' + dbCfg['host'] + ':' + str(dbCfg['port'])
+couch = couchdb.Server(dbURL)
+
+broker = cfg['broker']
+saveIotWatchdogConfigFile(broker)
 
 @app.route('/iot-watchdog/api/v1.0/deploy/agent', methods=['POST'])
 def deploy_iot_watchdog_agent():
@@ -59,13 +77,21 @@ def not_found(error):
 def install_iot_watchdog(host, username, password, uuid):
     logging.info("installing IoT Watchdog agent ...")
 
+    hostname = broker['hostname']
+    ip = broker['ip']
+    certificate = broker['certificate']
+
     command = "ansible-playbook roles/deployment/tasks/main.yml" \
               " -i hosts" \
               " -e \"ansible_user={1} ansible_ssh_pass={2} ansible_sudo_pass={2}\" " \
               " --extra-vars=\"source_code=../../../iot-device/agent/" \
               " iot_watchdog_agent_uuid={3}" \
               " iot_watchdog_agent_need_registration={4}" \
-              " service_def=../../../iot-device/service/\"".format(host, username, password, uuid, "yes")
+              " iot_watchdog_mqtt_broker_hostname={5}" \
+              " iot_watchdog_mqtt_broker_ip={6}" \
+              " iot_watchdog_mqtt_broker_certificate={7}" \
+              " service_def=../../../iot-device/service/\"".format(host, username, password, uuid, "yes"
+                                                                   , hostname, ip, certificate)
 
     return_code = run_cmd(command)
     if return_code > 0:
