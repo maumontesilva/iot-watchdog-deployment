@@ -4,4 +4,4 @@
 *.log
 iot-device/
 *idea*
-*tmp*
+*facts*

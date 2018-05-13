@@ -11,7 +11,7 @@ logging.basicConfig(filename='iot-watchdog-deployment.log',level=logging.DEBUG)
 
 app = Flask(__name__)
 
-couch = couchdb.Server('http://192.168.56.101:5984/')
+couch = couchdb.Server('http://dissertation-server:5984/')
 
 @app.route('/iot-watchdog/api/v1.0/deploy/agent', methods=['POST'])
 def deploy_iot_watchdog_agent():
@@ -76,14 +76,14 @@ def install_iot_watchdog(host, username, password, uuid):
 def collect_device_facts(host, username, password, uuid):
     logging.info("collecting device facts ...")
 
-    tmpFolder = "tmp/" + uuid;
-    logging.debug("Facts will be stored on " + tmpFolder)
+    factsFolder = "facts/" + uuid;
+    logging.debug("Facts will be stored on " + factsFolder)
 
-    if not os.path.exists(tmpFolder):
-        os.makedirs(tmpFolder)
+    if not os.path.exists(factsFolder):
+        os.makedirs(factsFolder)
 
     command = "ansible {0} -e \"ansible_user={1} ansible_ssh_pass={2} ansible_sudo_pass={2}\"" \
-              " -m setup --tree {3}".format(host, username, password, tmpFolder);
+              " -m setup --tree {3}".format(host, username, password, factsFolder);
 
     return_code = run_cmd(command)
     if return_code > 0:
@@ -91,7 +91,7 @@ def collect_device_facts(host, username, password, uuid):
         logging.error(errorMsg)
         raise Exception(errorMsg)
 
-    return tmpFolder
+    return factsFolder
 
 def run_cmd(command):
     logging.info("running command ...")

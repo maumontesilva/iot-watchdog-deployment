@@ -40,7 +40,7 @@
       remote_src: False
       mode: 0744
 
-  - name: Enable iot-watchdog service
+  - name: Starting iot-watchdog service
     systemd:
       name: iot-watchdog.service
       state: started
