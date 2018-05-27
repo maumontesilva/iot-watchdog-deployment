@@ -7,6 +7,7 @@ import logging
 import json
 import couchdb
 import yaml
+import datetime
 
 app = Flask(__name__)
 
@@ -55,7 +56,7 @@ def deploy_iot_watchdog_agent():
     try:
         install_iot_watchdog(host, username, password, UUID)
         deviceFileFolder = collect_device_facts(host, username, password, UUID)
-        persistDeviceProfile(deviceFileFolder, host)
+        persistDeviceProfile(deviceFileFolder, host, UUID)
     except Exception as error:
         logging.error(error)
         abort(500)
@@ -132,9 +133,12 @@ def run_cmd(command):
     logging.info("command returned code " + str(p.returncode))
     return p.returncode
 
-def persistDeviceProfile(folderPath, host):
+def persistDeviceProfile(folderPath, host, uuid):
     with open(folderPath + '/' + host) as f:
         data = json.load(f)
+
+    data['iotWatchdogUUID'] = uuid
+    data['deploymentTime'] = str(datetime.datetime.now())
 
     db = couch['deployment-db']
     db.save(data)
