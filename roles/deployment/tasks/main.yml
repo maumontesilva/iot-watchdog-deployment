@@ -17,7 +17,7 @@
       state: directory
       owner: root
       group: root
-      mode: 0744
+      mode: 0700
       recurse: yes
 
   - name: Copy watchdog agent code to target folder
@@ -27,7 +27,7 @@
       owner: root
       group: root
       remote_src: False
-      mode: 0744
+      mode: 0700
 
   - name: Insert the IoT Watchdog agent UUID and force the registration
     blockinfile:
@@ -45,7 +45,7 @@
       owner: root
       group: root
       remote_src: False
-      mode: 0744
+      mode: 0700
 
   - name: Insert MQTT broker hostname/ip into /etc/hosts
     blockinfile:
