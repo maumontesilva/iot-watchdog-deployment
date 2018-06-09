@@ -1,10 +1,16 @@
 ---
 - name: Deploy IoT Watchdog agent
   hosts: all
-  gather_facts: no
+  gather_facts: yes
   become: true
 
   tasks:
+  - name: Update repositories cache and install mosquitto library
+    apt:
+      name: libmosquitto-dev
+      update_cache: yes
+    when: ansible_os_family == "Debian"
+
   - name: Create a directory named /usr/local/iot-watchdog
     file:
       path: /usr/local/iot-watchdog
