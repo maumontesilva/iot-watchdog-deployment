@@ -20,7 +20,8 @@ def readConfiguration():
 def saveIotWatchdogConfigFile(broker):
     with open("iot-device/agent/config.cfg", "w") as iotWatchdogCfg:
         iotWatchdogCfg.write("#FILE MANAGED by IoT WATCHDOG DEPLOYMENT APP\n")
-        iotWatchdogCfg.write("heartbeat_period_in_minutes=%s\n" % str(broker['heartbeat']))
+        iotWatchdogCfg.write("heartbeat_period=%s\n" % str(broker['heartbeat']))
+        iotWatchdogCfg.write("heartbeat_period_unit=%s\n" % str(broker['heartbeat_unit']))
         iotWatchdogCfg.write("mqtt_broker_host=%s\n" % str(broker['hostname']))
         iotWatchdogCfg.write("mqtt_broker_port=%s\n" % str(broker['port']))
 
