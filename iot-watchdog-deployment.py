@@ -84,7 +84,7 @@ def install_iot_watchdog(host, username, password, uuid):
     certificate = broker['certificate']
 
     command = "ansible-playbook roles/deployment/tasks/main.yml" \
-              " -i hosts" \
+              " -i inventories" \
               " -e \"ansible_user={1} ansible_ssh_pass={2} ansible_sudo_pass={2}\" " \
               " --extra-vars=\"source_code=../../../iot-device/agent/" \
               " iot_watchdog_agent_uuid={3}" \
@@ -95,6 +95,7 @@ def install_iot_watchdog(host, username, password, uuid):
               " service_def=../../../iot-device/service/\"".format(host, username, password, uuid, "yes"
                                                                    , hostname, ip, certificate)
 
+    logging.debug("Ansible playbook ready to run: " + command.replace(password, '********'))
     return_code = run_cmd(command)
     if return_code > 0:
         errorMsg = 'Error installing IoT Watchdog agent. Error code: ' + str(return_code)
@@ -110,9 +111,10 @@ def collect_device_facts(host, username, password, uuid):
     if not os.path.exists(factsFolder):
         os.makedirs(factsFolder)
 
-    command = "ansible {0} -e \"ansible_user={1} ansible_ssh_pass={2} ansible_sudo_pass={2}\"" \
+    command = "ansible {0} -i inventories -e \"ansible_user={1} ansible_ssh_pass={2} ansible_sudo_pass={2}\"" \
               " -m setup --tree {3}".format(host, username, password, factsFolder);
 
+    logging.debug("Ansible command ready to run: " + command.replace(password, '********'))
     return_code = run_cmd(command)
     if return_code > 0:
         errorMsg = 'Error collecting device data. Error code: ' + str(return_code)
@@ -123,7 +125,6 @@ def collect_device_facts(host, username, password, uuid):
 
 def run_cmd(command):
     logging.info("running command ...")
-    logging.debug("CMD : " + command)
     p = subprocess.Popen(command, shell=True,
                          stdout=subprocess.PIPE,
                          stderr=subprocess.STDOUT)
@@ -146,4 +147,4 @@ def persistDeviceProfile(folderPath, host, uuid):
 
 if __name__ == '__main__':
     logging.info("Starting IoT Watchdog deployment service ...")
-    app.run(debug=True)
+    app.run(ssl_context='adhoc', debug=True)
